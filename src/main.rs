@@ -11,7 +11,7 @@ fn main() {
 
     let mut framebuffer = FrameBuffer::new(width, height);
 
-    // Polígono 1 
+    // Polígono 1
     let poly1 = vec![
         Vector2 { x: 165.0, y: 380.0 }, Vector2 { x: 185.0, y: 360.0 },
         Vector2 { x: 180.0, y: 330.0 }, Vector2 { x: 207.0, y: 345.0 },
@@ -20,7 +20,7 @@ fn main() {
         Vector2 { x: 205.0, y: 410.0 }, Vector2 { x: 193.0, y: 383.0 },
     ];
 
-    // Polígono 2 
+    // Polígono 2
     let poly2 = vec![
         Vector2 { x: 321.0, y: 335.0 }, Vector2 { x: 288.0, y: 286.0 },
         Vector2 { x: 339.0, y: 251.0 }, Vector2 { x: 374.0, y: 302.0 },
@@ -32,9 +32,25 @@ fn main() {
         Vector2 { x: 436.0, y: 249.0 },
     ];
 
-    // Solo dibuja el polígono 3
-    draw_polygon_edges(&mut framebuffer, &poly3, Color::WHITE);
-    fill_polygon(&mut framebuffer, &poly3, Color::RED);
+    // Polígono 4
+    let poly4 = vec![
+        Vector2 { x: 413.0, y: 177.0 }, Vector2 { x: 448.0, y: 159.0 }, Vector2 { x: 502.0, y: 88.0 }, Vector2 { x: 553.0, y: 53.0 },
+        Vector2 { x: 535.0, y: 36.0 }, Vector2 { x: 676.0, y: 37.0 }, Vector2 { x: 660.0, y: 52.0 }, Vector2 { x: 750.0, y: 145.0 },
+        Vector2 { x: 761.0, y: 179.0 }, Vector2 { x: 672.0, y: 192.0 }, Vector2 { x: 659.0, y: 214.0 }, Vector2 { x: 615.0, y: 214.0 },
+        Vector2 { x: 632.0, y: 230.0 }, Vector2 { x: 580.0, y: 230.0 }, Vector2 { x: 597.0, y: 215.0 }, Vector2 { x: 552.0, y: 214.0 },
+        Vector2 { x: 517.0, y: 144.0 }, Vector2 { x: 466.0, y: 180.0 },
+    ];
+
+    // Polígono 5
+    let poly5 = vec![
+        Vector2 { x: 682.0, y: 175.0 }, Vector2 { x: 708.0, y: 120.0 },
+        Vector2 { x: 735.0, y: 148.0 }, Vector2 { x: 739.0, y: 170.0 },
+    ];
+
+    draw_polygon_edges(&mut framebuffer, &poly4, Color::WHITE);
+    draw_polygon_edges(&mut framebuffer, &poly5, Color::WHITE);
+
+    fill_polygon_with_hole(&mut framebuffer, &poly4, &poly5, Color::GREEN, Color::BLACK);
 
     save_framebuffer_as_png(&framebuffer, "out.png");
 
@@ -44,7 +60,7 @@ fn main() {
 
         for y in 0..height {
             for x in 0..width {
-                if let Some(color) = framebuffer.get_pixel(x, y) {
+                if let Some(color) = framebuffer.get_pixel(x as i32, y as i32) {
                     d.draw_pixel(x as i32, y as i32, color);
                 }
             }
@@ -123,16 +139,24 @@ fn point_in_polygon(point: Vector2, polygon: &[Vector2]) -> bool {
     inside
 }
 
-fn fill_polygon(framebuffer: &mut FrameBuffer, poly: &[Vector2], color: Color) {
-    let min_y = poly.iter().map(|v| v.y as i32).min().unwrap_or(0);
-    let max_y = poly.iter().map(|v| v.y as i32).max().unwrap_or(0);
+fn fill_polygon_with_hole(
+    framebuffer: &mut FrameBuffer,
+    outer: &[Vector2],
+    hole: &[Vector2],
+    fill_color: Color,
+    hole_color: Color,
+) {
+    let min_y = outer.iter().map(|v| v.y as i32).min().unwrap_or(0);
+    let max_y = outer.iter().map(|v| v.y as i32).max().unwrap_or(0);
     let width = framebuffer.width();
 
     for y in min_y..=max_y {
         for x in 0..width {
             let point = Vector2 { x: x as f32, y: y as f32 };
-            if point_in_polygon(point, poly) {
-                framebuffer.set_pixel(x, y, color);
+            if point_in_polygon(point, outer) && !point_in_polygon(point, hole) {
+                framebuffer.set_pixel(x, y, fill_color);
+            } else if point_in_polygon(point, hole) {
+                framebuffer.set_pixel(x, y, hole_color);
             }
         }
     }
