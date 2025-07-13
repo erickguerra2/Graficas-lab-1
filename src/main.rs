@@ -7,12 +7,11 @@ fn main() {
     let (width, height) = (800, 600);
     let (mut rl, thread) = raylib::init()
         .size(width, height)
-        .title("Polígono 2 (solo se muestra este)")
         .build();
 
     let mut framebuffer = FrameBuffer::new(width, height);
 
-    // Poligono 1
+    // Polígono 1 
     let poly1 = vec![
         Vector2 { x: 165.0, y: 380.0 }, Vector2 { x: 185.0, y: 360.0 },
         Vector2 { x: 180.0, y: 330.0 }, Vector2 { x: 207.0, y: 345.0 },
@@ -21,15 +20,21 @@ fn main() {
         Vector2 { x: 205.0, y: 410.0 }, Vector2 { x: 193.0, y: 383.0 },
     ];
 
-    // Poligono 2
+    // Polígono 2 
     let poly2 = vec![
         Vector2 { x: 321.0, y: 335.0 }, Vector2 { x: 288.0, y: 286.0 },
         Vector2 { x: 339.0, y: 251.0 }, Vector2 { x: 374.0, y: 302.0 },
     ];
 
-    // Solo dibuja polígono 2:
-    draw_polygon_edges(&mut framebuffer, &poly2, Color::WHITE);
-    fill_polygon(&mut framebuffer, &poly2, Color::BLUE);
+    // Polígono 3
+    let poly3 = vec![
+        Vector2 { x: 377.0, y: 249.0 }, Vector2 { x: 411.0, y: 197.0 },
+        Vector2 { x: 436.0, y: 249.0 },
+    ];
+
+    // Solo dibuja el polígono 3
+    draw_polygon_edges(&mut framebuffer, &poly3, Color::WHITE);
+    fill_polygon(&mut framebuffer, &poly3, Color::RED);
 
     save_framebuffer_as_png(&framebuffer, "out.png");
 
