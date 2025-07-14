@@ -7,6 +7,7 @@ fn main() {
     let (width, height) = (800, 600);
     let (mut rl, thread) = raylib::init()
         .size(width, height)
+        .title("Todos los polígonos juntos")
         .build();
 
     let mut framebuffer = FrameBuffer::new(width, height);
@@ -47,10 +48,18 @@ fn main() {
         Vector2 { x: 735.0, y: 148.0 }, Vector2 { x: 739.0, y: 170.0 },
     ];
 
-    draw_polygon_edges(&mut framebuffer, &poly4, Color::WHITE);
-    draw_polygon_edges(&mut framebuffer, &poly5, Color::WHITE);
+    fill_polygon(&mut framebuffer, &poly1, Color::YELLOW);
+    draw_polygon_edges(&mut framebuffer, &poly1, Color::WHITE);
+
+    fill_polygon(&mut framebuffer, &poly2, Color::BLUE);
+    draw_polygon_edges(&mut framebuffer, &poly2, Color::WHITE);
+
+    fill_polygon(&mut framebuffer, &poly3, Color::RED);
+    draw_polygon_edges(&mut framebuffer, &poly3, Color::WHITE);
 
     fill_polygon_with_hole(&mut framebuffer, &poly4, &poly5, Color::GREEN, Color::BLACK);
+    draw_polygon_edges(&mut framebuffer, &poly4, Color::WHITE);
+    draw_polygon_edges(&mut framebuffer, &poly5, Color::WHITE);
 
     save_framebuffer_as_png(&framebuffer, "out.png");
 
@@ -137,6 +146,21 @@ fn point_in_polygon(point: Vector2, polygon: &[Vector2]) -> bool {
         j = i;
     }
     inside
+}
+
+fn fill_polygon(framebuffer: &mut FrameBuffer, poly: &[Vector2], color: Color) {
+    let min_y = poly.iter().map(|v| v.y as i32).min().unwrap_or(0);
+    let max_y = poly.iter().map(|v| v.y as i32).max().unwrap_or(0);
+    let width = framebuffer.width();
+
+    for y in min_y..=max_y {
+        for x in 0..width {
+            let point = Vector2 { x: x as f32, y: y as f32 };
+            if point_in_polygon(point, poly) {
+                framebuffer.set_pixel(x, y, color);
+            }
+        }
+    }
 }
 
 fn fill_polygon_with_hole(
